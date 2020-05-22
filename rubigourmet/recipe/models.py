@@ -27,6 +27,7 @@ class Recipe(models.Model):
     date_added = models.DateTimeField('date added to book', auto_now_add=True, blank=True, null=True)
     ingredient = models.ManyToManyField(IngredientQuantity)
     comment = models.CharField(max_length=200, blank=True, null=True)
+    image = models.ImageField(blank=True, null=True)
     def __str__(self):
         return self.name
 
