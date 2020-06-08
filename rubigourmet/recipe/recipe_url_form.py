@@ -16,12 +16,15 @@ def add_recipe(request):
         	#AC TODO, init new new object with url
         	recipe = scrap_recipe_from_url(cd['url'])
         	
-        	return HttpResponseRedirect('/recipe?submitted=True')
+        	#return HttpResponseRedirect('/recipe?submitted=True')
+        	return HttpResponseRedirect('/admin/recipe/recipe/%s/change/' % recipe.id)
+
     else:
         form = RecipeUrlForm()
         if 'submitted' in request.GET:
             submitted = True
  
+    #return render(request, 'recipe/add_recipe_url.html', {'form': form, 'submitted': submitted})
     return render(request, 'recipe/add_recipe_url.html', {'form': form, 'submitted': submitted})
 
 def scrap_recipe_from_url(url):
