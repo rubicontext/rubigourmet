@@ -15,7 +15,7 @@ class Ingredient(models.Model):
 
 class Recipe(models.Model):
     name = models.CharField(max_length=200)
-    description = models.CharField(max_length=200, blank=True, null=True)
+    description = models.TextField(max_length=1000, blank=True, null=True)
     url = models.CharField(max_length=200)
     date_added = models.DateTimeField('date added to book', auto_now_add=True, blank=True, null=True)
     #ingredientQuantities = models.ManyToManyField(IngredientQuantity, )
@@ -25,12 +25,12 @@ class Recipe(models.Model):
         return self.name
 
 class IngredientQuantity(models.Model):
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     quantity = models.IntegerField()
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     comment = models.CharField(max_length=200, blank=True, null=True)
     def __str__(self):
-        return self.ingredient.name + " - " +  str(self.quantity)
+        return str(self.quantity) + " " +  self.ingredient.name
 
 
 

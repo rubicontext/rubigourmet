@@ -25,7 +25,7 @@ SECRET_KEY = '6ily_kw^w_w77yqs3h&riiai2iw+00jdf$@5jm036^0fcol056'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['lula', 'http://193.70.86.101/']
 
 
 # Application definition
@@ -123,3 +123,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+#AC add image dir
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
