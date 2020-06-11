@@ -78,8 +78,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'rubigourmet_dev',
-        'USER': 'rubi',
-        'PASSWORD': 'rubi_db',
+        'USER': 'gourmet',
+        'PASSWORD': 'gourmet_db',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
