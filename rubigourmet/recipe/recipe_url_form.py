@@ -15,6 +15,8 @@ from django.core.files import File
 import os
 import urllib.request
 import math
+from fractions import Fraction
+import re
 
 class RecipeUrlForm(forms.Form):
     url = forms.CharField(max_length=500, label='Url of the new recipe')
@@ -43,7 +45,7 @@ def add_recipe(request):
 def scrap_recipe_from_url(url):
 	
 	#fake test
-	#url = 'https://www.cuisineaz.com/recettes/taboule-au-chou-fleur-et-brocoli-102503.aspx?navdiapo=2713-1'
+	#url = 'https://www.marmiton.org/recettes/recette_bruschetta-aux-aubergines_47116.aspx'
 
 	recipe = Recipe()
 	recipe.url = url
@@ -60,19 +62,25 @@ def scrap_recipe_from_url(url):
 		allItems = soup.findAll("li", {"class": "recipe-preparation__list__item"})
 		allIngredientQty = soup.findAll("span", {"class": "recipe-ingredient-qt"})
 		allIngredientUnitAndNames = soup.findAll("span", {"class": "ingredient"})
-		allImages = soup.findAll("img", {"id": "recipe-media-viewer-main-picture"})
+		#allImages = soup.findAll("img", {"id": "recipe-media-viewer-main-picture"})
+		imageDiv = soup.find("div", {"class": "recipe-media-viewer-media-container"})
+		allImages = imageDiv.findAll("img")
+		if (len(allImages) >0):
+			img_url = allImages[0]['data-src']
 	elif (domain_name == 'www.cuisineaz.com'):
 		allItems = soup.findAll("p", {"class": "p10"})
 		ingredientSection = soup.find("section", {"class": "large-4 medium-4 small-12 columns recipe_ingredients"})
 		allIngredientQty = ingredientSection.findAll("span")
 		allIngredientUnitAndNames = 'MANUAL'
 		allImages = soup.findAll("img", {"id": "ContentPlaceHolder_recipeImg"})
+		if (len(allImages) >0):
+			img_url = allImages[0]['data-src']
 
 	#get title
 	allTitles = soup.findAll('h1')
 	allTitles
 	#recipe.name = 'fake name'
-	recipe.name = allTitles[0].contents[0]
+	recipe.name = allTitles[0].contents[0].strip()
 
 	#TODO detect url domain, and store list of tags
 
@@ -101,23 +109,43 @@ def scrap_recipe_from_url(url):
 		
 		#print('ouuuuuuu')
 		#print(current_ingredient_qty.contents)
-		if(len(current_ingredient_qty.contents)<1):
+		if(len(current_ingredient_qty.contents)<0):
 			break
-		currentQty = current_ingredient_qty.contents[0]
-		#currentUnitAndName = allIngredientUnitAndNames[i].contents[0]
-		
-		#for some sites we need to split 
-		if (allIngredientUnitAndNames == 'MANUAL'):
-			currentUnitAndName = current_ingredient_qty.contents[0]
-			currentQty = current_ingredient_qty.contents[0].split(' ')[0]
-			if (not currentQty.isnumeric()):
-				currentQty = 1
-			else:
-				currentUnitAndName = current_ingredient_qty.contents[0].split(' ', 1)[1]
+		#if(len(current_ingredient_qty.contents)==1):
+			#<span>400g de semoule de blé complète</span>
+			#currentQty=1
+			#currentUnitAndName = current_ingredient_qty.contents[0]
 		else:
-			currentUnitAndName = allIngredientUnitAndNames[i].contents[0]
-		#avoid non integer values in crappy websites
-		currentQty = math.ceil(float(currentQty))
+			currentQty = current_ingredient_qty.contents[0]
+			#currentUnitAndName = allIngredientUnitAndNames[i].contents[0]
+			
+			#for some sites we need to split 
+			if (allIngredientUnitAndNames == 'MANUAL'):
+				currentUnitAndName = current_ingredient_qty.contents[0]
+
+				#KO for 60g without space
+				number = re.search('^\d+', currentUnitAndName)
+				if(number is None):
+					#'sel, poivre'
+					currentQty = 1
+				else:
+					currentQty = number.group(0)
+					currentUnitAndName = currentUnitAndName[number.end():]
+
+
+
+				#currentQty = current_ingredient_qty.contents[0].split(' ')[0]
+				#currentUnitAndName = current_ingredient_qty.contents[0].split(' ', 1)[1]
+			else:
+				currentUnitAndName = allIngredientUnitAndNames[i].contents[0]
+			#avoid non integer values in crappy websites
+
+			#check if fraction?
+			#if ('/' in currentQty):
+			#	myFraction = Fraction(currentQty)
+			#	currentQty = float(myFraction)
+
+		#currentQty = math.ceil(float(currentQty))
 
 
 		#TODO get ingredient by name or create it
@@ -137,7 +165,7 @@ def scrap_recipe_from_url(url):
 	#image
 	#allImages = soup.findAll("img", {"id": "recipe-media-viewer-main-picture"})
 	if (len(allImages) >0):
-		img_url = allImages[0]['src']
+		#img_url = allImages[0]['src']
 		#recipe.comment = img_url
 
 		# Steam the image from the url

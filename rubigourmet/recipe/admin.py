@@ -23,6 +23,7 @@ class RecipeAdmin(admin.ModelAdmin):
         ('Other information', {'fields': ['image', 'comment']}),
     ]
     inlines = [IngredientQuantityInline]
+    list_display = ('name', 'image_tag', 'date_added')
 
 #admin.site.register(IngredientQuantity, IngredientQuantityInline)
 admin.site.register(Recipe, RecipeAdmin)

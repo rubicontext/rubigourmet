@@ -23,6 +23,13 @@ class Recipe(models.Model):
     image = models.ImageField(blank=True, null=True)
     def __str__(self):
         return self.name
+    def image_tag(self):
+        from django.utils.html import mark_safe
+        if not self.image:
+            return 'no image'
+        else:
+            return mark_safe('<img src="%s" width="100px" height="100px" />'%(self.image.url))
+    image_tag.short_description = 'Image'
 
 class IngredientQuantity(models.Model):
     quantity = models.IntegerField()
